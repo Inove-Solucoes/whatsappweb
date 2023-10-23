@@ -19,7 +19,7 @@ class Message extends Model<Message> {
   @Column
   id: string;
 
-  @Default(0)
+  @Default(1)
   @Column
   ack: number;
 

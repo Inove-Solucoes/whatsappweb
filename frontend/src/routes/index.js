@@ -16,6 +16,7 @@ import Queues from "../pages/Queues/";
 import { AuthProvider } from "../context/Auth/AuthContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import Route from "./Route";
+import Api from "../pages/Api/";
 
 const Routes = () => {
   return (
@@ -24,6 +25,7 @@ const Routes = () => {
         <Switch>
           <Route exact path="/login" component={Login} />
           <Route exact path="/signup" component={Signup} />
+          <Route exact path="/api" component={Api} isPrivate />
           <WhatsAppsProvider>
             <LoggedInLayout>
               <Route exact path="/" component={Dashboard} isPrivate />

@@ -217,7 +217,7 @@ const LoggedInLayout = ({ children }) => {
             noWrap
             className={classes.title}
           >
-            WhaTicket
+            Inove WhatsApp
           </Typography>
           {user.id && <NotificationsPopOver />}
 

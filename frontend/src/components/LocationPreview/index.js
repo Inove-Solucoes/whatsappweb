@@ -24,7 +24,7 @@ const LocationPreview = ({ image, link, description }) => {
 			}}>
 				<div>
 					<div style={{ float: "left" }}>
-						<img src={image} onClick={handleLocation} style={{ width: "100px" }} />
+						<img src={image} alt="RandomImage" onClick={handleLocation} style={{ width: "100px" }} />
 					</div>
 					{ description && (
 					<div style={{ display: "flex", flexWrap: "wrap" }}>

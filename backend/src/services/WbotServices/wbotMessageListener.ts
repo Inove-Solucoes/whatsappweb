@@ -283,7 +283,7 @@ const handleMessage = async (
     }
     const whatsapp = await ShowWhatsAppService(wbot.id!);
 
-    const unreadMessages = msg.fromMe ? 0 : chat.unreadCount;
+    const unreadMessages = msg.fromMe ? 0 : chat.unreadCount + 1;
 
     const contact = await verifyContact(msgContact);
 
@@ -372,7 +372,6 @@ const handleMessage = async (
             }
           }
         }
-
         // eslint-disable-next-line no-restricted-syntax
         for await (const ob of obj) {
           try {

@@ -462,10 +462,10 @@ To generate the certificate files use `certbot` which can be installed using sna
 Note: The frontend container that runs nginx is already prepared to receive the request made by certboot to validate the certificate.
 
 ```bash
-# BACKEND
+# FRONTEND
 certbot certonly --cert-name backend --webroot --webroot-path ./ssl/www/ -d api.mydomain.com
 
-# FRONTEND
+# BACKEND
 certbot certonly --cert-name frontend --webroot --webroot-path ./ssl/www/ -d myapp.mydomain.com
 ```
 
