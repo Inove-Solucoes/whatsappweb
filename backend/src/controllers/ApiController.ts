@@ -7,6 +7,7 @@ import Message from "../models/Message";
 import Whatsapp from "../models/Whatsapp";
 import CreateOrUpdateContactService from "../services/ContactServices/CreateOrUpdateContactService";
 import FindOrCreateTicketService from "../services/TicketServices/FindOrCreateTicketService";
+import ListTicketsService from "../services/TicketServices/ListTicketsService";
 import ShowTicketService from "../services/TicketServices/ShowTicketService";
 import CheckIsValidContact from "../services/WbotServices/CheckIsValidContact";
 import CheckContactNumber from "../services/WbotServices/CheckNumber";
@@ -15,6 +16,19 @@ import SendWhatsAppMedia from "../services/WbotServices/SendWhatsAppMedia";
 import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import UpdateTicketService from "../services/TicketServices/UpdateTicketService";
 
+
+
+interface RequestTicket{
+  searchParam?: string;
+  pageNumber?: string;
+  status?: string;
+  date?: string;
+  showAll?: string;
+  userId: string;
+  withUnreadMessages?: string;
+  queueIds: number[];
+  contactNumber: string;
+}
 
 type WhatsappData = {
   whatsappId: number;
@@ -112,4 +126,34 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
   setTimeout(async () => {
 await UpdateTicketService({ticketId: contactAndTicket.id,ticketData: { status: "closed" }});}, 1000);
 return res.send({ error: "SUCCESS" });
+};
+
+export const getAllTickets = async (req: Request, res: Response): Promise<Response> => {
+  
+  
+  const {
+    searchParam,
+    pageNumber,
+    status,
+    date,
+    showAll,
+    userId,
+    withUnreadMessages,
+    contactNumber
+  }: RequestTicket = req.body;
+
+
+  const {tickets, count, hasMore} = await ListTicketsService({
+    searchParam,
+    pageNumber,
+    status,
+    date,
+    showAll,
+    userId,
+    withUnreadMessages,
+    queueIds: [1,2,3,4,5,6,7,8],
+    contactNumber
+  });
+
+  return res.status(200).json({ tickets, count, hasMore });
 };

@@ -11,4 +11,6 @@ const ApiRoutes = express.Router();
 
 ApiRoutes.post("/send", isAuthApi, upload.array("medias"), ApiController.index);
 
+ApiRoutes.post("/", isAuthApi, ApiController.getAllTickets);
+
 export default ApiRoutes;
