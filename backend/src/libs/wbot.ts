@@ -14,7 +14,10 @@ const sessions: Session[] = [];
 
 const syncUnreadMessages = async (wbot: Session) => {
   const chats = await wbot.getChats();
-
+  if (chats.filter(chat => chat.unreadCount > 0).length > 20) {
+        console.log("Há mais de 20 chats com mensagens não lidas. Não sincronizando.");
+        return; // Retorna sem sincronizar
+    }
   /* eslint-disable no-restricted-syntax */
   /* eslint-disable no-await-in-loop */
   for (const chat of chats) {
