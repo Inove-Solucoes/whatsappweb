@@ -87,13 +87,14 @@ const ListTicketsService = async ({
       {
         model: Message,
         as: "messages",
-        attributes: ["id", "body"],
+        attributes: ["id", "body", "createdAt", "isDeleted"],
         where: {
           body: where(
             fn("LOWER", col("body")),
             "LIKE",
             `%${sanitizedSearchParam}%`
-          )
+          ),
+          isDeleted: { [Op.is]: false  }
         },
         required: false,
         duplicating: false
@@ -122,9 +123,19 @@ const ListTicketsService = async ({
     };
   }
 
+ /* whereCondition = {
+      ...whereCondition,
+      "$messages.isDeleted$": { [Op.is]: 0  }
+    };
+
+    whereCondition = {
+      ...whereCondition,
+       "$messages.isDeleted$": { [Op.is]: false  }
+    };*/
+
   if (date) {
     whereCondition = {
-      createdAt: {
+      updatedAt: {
         [Op.between]: [+startOfDay(parseISO(date)), +endOfDay(parseISO(date))]
       }
     };
@@ -141,7 +152,7 @@ const ListTicketsService = async ({
     };
   }
 
-  const limit = 40;
+  const limit = 200;
   const offset = limit * (+pageNumber - 1);
 
   const { count, rows: tickets } = await Ticket.findAndCountAll({
