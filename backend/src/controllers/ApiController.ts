@@ -15,7 +15,8 @@ import GetProfilePicUrl from "../services/WbotServices/GetProfilePicUrl";
 import SendWhatsAppMedia from "../services/WbotServices/SendWhatsAppMedia";
 import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import UpdateTicketService from "../services/TicketServices/UpdateTicketService";
-
+import { ListMessagesServiceV2 } from "../services/MessageServices/ListMessagesService";
+import { ListMessagesServiceV3 } from "../services/MessageServices/ListMessagesService";
 
 
 interface RequestTicket{
@@ -27,6 +28,12 @@ interface RequestTicket{
   userId: string;
   withUnreadMessages?: string;
   queueIds: number[];
+  contactNumber: string;
+}
+
+interface RequestMessages{
+  searchParam?: string;
+  date?: string;
   contactNumber: string;
 }
 
@@ -156,4 +163,40 @@ export const getAllTickets = async (req: Request, res: Response): Promise<Respon
   });
 
   return res.status(200).json({ tickets, count, hasMore });
+};
+
+export const getMessages = async (req: Request, res: Response): Promise<Response> => {
+  
+  const {
+    searchParam,
+    date,
+    contactNumber
+  }: RequestMessages = req.body;
+
+
+  const {messages, count} = await ListMessagesServiceV2({
+    searchParam,
+    date,
+    contactNumber
+  });
+
+  return res.status(200).json({ messages, count });
+};
+
+export const getMessagesTicket = async (req: Request, res: Response): Promise<Response> => {
+  
+  const {
+    searchParam,
+    date,
+    contactNumber
+  }: RequestMessages = req.body;
+
+
+  const {messages, count} = await ListMessagesServiceV3({
+    searchParam,
+    date,
+    contactNumber
+  });
+
+  return res.status(200).json({ messages, count });
 };

@@ -13,4 +13,9 @@ ApiRoutes.post("/send", isAuthApi, upload.array("medias"), ApiController.index);
 
 ApiRoutes.post("/", isAuthApi, ApiController.getAllTickets);
 
+ApiRoutes.post("/v2", isAuthApi, ApiController.getMessages);
+
+ApiRoutes.post("/v3", isAuthApi, ApiController.getMessagesTicket);
+
+
 export default ApiRoutes;
