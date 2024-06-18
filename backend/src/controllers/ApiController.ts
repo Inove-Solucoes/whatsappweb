@@ -18,7 +18,6 @@ import UpdateTicketService from "../services/TicketServices/UpdateTicketService"
 import { ListMessagesServiceV2 } from "../services/MessageServices/ListMessagesService";
 import { ListMessagesServiceV3 } from "../services/MessageServices/ListMessagesService";
 
-
 interface RequestTicket{
   searchParam?: string;
   pageNumber?: string;
@@ -37,6 +36,11 @@ interface RequestMessages{
   contactNumber: string;
 }
 
+interface ResponseMessageV3 {
+  contactNumber: string;
+  messages: Message[];
+  count: number;
+}
 type WhatsappData = {
   whatsappId: number;
 }
@@ -183,8 +187,7 @@ export const getMessages = async (req: Request, res: Response): Promise<Response
   return res.status(200).json({ messages, count });
 };
 
-export const getMessagesTicket = async (req: Request, res: Response): Promise<Response> => {
-  
+export const getMessagesTicket = async (req: Request, res: Response): Promise<Response<ResponseMessageV3[]>> => {
   const {
     searchParam,
     date,
@@ -192,11 +195,11 @@ export const getMessagesTicket = async (req: Request, res: Response): Promise<Re
   }: RequestMessages = req.body;
 
 
-  const {messages, count} = await ListMessagesServiceV3({
+  const messages  = await ListMessagesServiceV3({
     searchParam,
     date,
     contactNumber
   });
 
-  return res.status(200).json({ messages, count });
+  return res.status(200).json({ messages });
 };

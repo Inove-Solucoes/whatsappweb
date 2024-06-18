@@ -19,8 +19,12 @@ interface RequestMessage {
 interface ResponseMessage {
   messages: Message[];
   count: number;
+  }
+interface ResponseMessageV3 {
+  contactNumber: string;
+  messages: Message[];
+  count: number;
 }
-
 interface Response {
   messages: Message[];
   ticket: Ticket;
@@ -121,45 +125,56 @@ export const ListMessagesServiceV3 = async ({
   searchParam,
   contactNumber,
   date
-}: RequestMessage): Promise<ResponseMessage> => {
+}: RequestMessage): Promise<ResponseMessageV3[]> => {
 
-  if (!contactNumber) {
-    throw new Error('Contact number is required');
-  } 
-  
   if (!searchParam) {
     throw new Error('SearchParam is required');
   }
 
-  if(!date){
+  if (!date) {
     throw new Error('Date is required');
   }
-
-  const contact = await Contact.findOne({ where: { number: contactNumber } });
-  if (!contact) {
-    throw new Error('Contact not found');
-  }
-
-  // Buscar todos os tickets associados ao contato
-  const tickets = await Ticket.findAll({ where: { contactId: contact.id } });
-
-  // Sequelize query
-  const { count, rows: messages } = await Message.findAndCountAll({
-    where: { ticketId: { [Op.in]: tickets.map(ticket => ticket.id) },
-    [Op.and]: [
-      { body: { [Op.like]: `%${searchParam.toLowerCase().trim()}%` } },
-      { createdAt: {
+  const tickets = await Ticket.findAll({
+    where: {
+      updatedAt: {
         [Op.gte]: new Date(date),
         [Op.lt]: new Date(new Date(date).setDate(new Date(date).getDate() + 1))
-      }}
-    ]},
-    order: [["createdAt", "DESC"]],
-    limit: 200
+      }
+    }
   });
+
+  // Obter os IDs únicos dos contatos dos tickets do dia
+  const contactIds = [...new Set(tickets.map(ticket => ticket.contactId))];
   
-  return {
-    messages: messages.reverse(),
-    count
-  };
+  let messagesByContact = [];
+
+  for (const contactId of contactIds) {
+    const contact = await Contact.findOne({ where: { id: contactId } });
+
+    if (contact) {
+      // Buscar todos os tickets associados ao contato no dia específico
+      const contactTickets = tickets.filter(ticket => ticket.contactId === contact.id);
+
+      // Sequelize query
+      const { count, rows: messages } = await Message.findAndCountAll({
+        where: {
+          ticketId: { [Op.in]: contactTickets.map(ticket => ticket.id) },
+          body: { [Op.like]: `%${searchParam.toLowerCase().trim()}%` }
+        },
+        order: [["createdAt", "DESC"]],
+        limit: 200
+      });
+
+      if (count > 0) {
+        messagesByContact.push({
+          contactNumber: contact.number,
+          messages: messages.reverse(),
+          count
+        });
+      }
+    }
+  }
+  
+  return messagesByContact;
 };
 export default ListMessagesService;
