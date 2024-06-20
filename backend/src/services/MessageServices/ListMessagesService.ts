@@ -3,7 +3,7 @@ import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
 import ShowTicketService from "../TicketServices/ShowTicketService";
 import Contact from "../../models/Contact";
-import { Op } from 'sequelize';
+const { fn, col, Op, where  } = require('sequelize');
 
 interface Request {
   ticketId: string;
@@ -123,7 +123,6 @@ export const ListMessagesServiceV2 = async ({
 
 export const ListMessagesServiceV3 = async ({
   searchParam,
-  contactNumber,
   date
 }: RequestMessage): Promise<ResponseMessageV3[]> => {
 
@@ -143,7 +142,6 @@ export const ListMessagesServiceV3 = async ({
     }
   });
 
-  // Obter os IDs únicos dos contatos dos tickets do dia
   const contactIds = [...new Set(tickets.map(ticket => ticket.contactId))];
   
   let messagesByContact = [];
@@ -152,17 +150,25 @@ export const ListMessagesServiceV3 = async ({
     const contact = await Contact.findOne({ where: { id: contactId } });
 
     if (contact) {
-      // Buscar todos os tickets associados ao contato no dia específico
       const contactTickets = tickets.filter(ticket => ticket.contactId === contact.id);
 
-      // Sequelize query
       const { count, rows: messages } = await Message.findAndCountAll({
         where: {
-          ticketId: { [Op.in]: contactTickets.map(ticket => ticket.id) },
-          body: { [Op.like]: `%${searchParam.toLowerCase().trim()}%` }
+          ticketId: { 
+            [Op.in]: contactTickets.map(ticket => ticket.id) 
+          },
+          createdAt: {
+            [Op.gte]: new Date(date),
+            [Op.lt]: new Date(new Date(date).setDate(new Date(date).getDate() + 1))
+          },
+          [Op.and]: [
+            where(fn('LOWER', col('body')), {
+              [Op.like]: `%${searchParam.toLowerCase().trim()}%`
+            })
+          ]
         },
         order: [["createdAt", "DESC"]],
-        limit: 200
+        limit: 2000
       });
 
       if (count > 0) {

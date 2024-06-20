@@ -35,6 +35,10 @@ interface RequestMessages{
   date?: string;
   contactNumber: string;
 }
+interface RequestMessageV3{
+  searchParam?: string;
+  date?: string;
+}
 
 interface ResponseMessageV3 {
   contactNumber: string;
@@ -190,15 +194,13 @@ export const getMessages = async (req: Request, res: Response): Promise<Response
 export const getMessagesTicket = async (req: Request, res: Response): Promise<Response<ResponseMessageV3[]>> => {
   const {
     searchParam,
-    date,
-    contactNumber
-  }: RequestMessages = req.body;
+    date
+  }: RequestMessageV3 = req.body;
 
 
   const messages  = await ListMessagesServiceV3({
     searchParam,
-    date,
-    contactNumber
+    date
   });
 
   return res.status(200).json({ messages });
